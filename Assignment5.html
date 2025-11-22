@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <link rel="icon" type="image/x-icon" href="https://upload.wikimedia.org/wikipedia/commons/6/6a/JavaScript-logo.png">
+    <title>Numeric Formatter & Validator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            padding: 30px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .box {
+            background: white;
+            padding: 20px;
+            margin-bottom: 25px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px #ddd;
+        }
+
+        label {
+            font-weight: bold;
+        }
+
+        input,
+        button,
+        select {
+            padding: 8px;
+            margin: 8px 0;
+            width: 100%;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            background: #007bff;
+            color: white;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background: #0056b3;
+        }
+
+        .result {
+            padding: 10px;
+            background: #eef;
+            border: 1px solid #007bff;
+            margin-top: 10px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Numeric Formatter & Validator</h1>
+
+    <div class="box">
+        <h2>A. formatMoney</h2>
+        <label>Value:</label>
+        <input type="text" id="moneyValue">
+
+        <label>Decimals:</label>
+        <input type="number" id="moneyDecimals" min="0" max="20">
+
+        <button onclick="runFormatMoney()">Format</button>
+        <div id="resultMoney" class="result"></div>
+    </div>
+
+    <div class="box">
+        <h2>B. formatSignificant</h2>
+        <label>Value:</label>
+        <input type="text" id="sigValue">
+
+        <label>Significant Digits:</label>
+        <input type="number" id="sigDigits" min="1" max="21">
+
+        <button onclick="runFormatSig()">Format</button>
+        <div id="resultSig" class="result"></div>
+    </div>
+
+
+    <div class="box">
+        <h2>C. formatScientific</h2>
+        <label>Value:</label>
+        <input type="text" id="sciValue">
+
+        <label>Fraction Digits:</label>
+        <input type="number" id="sciDigits" min="0" max="20">
+
+        <button onclick="runFormatScientific()">Format</button>
+        <div id="resultSci" class="result"></div>
+    </div>
+
+
+    <div class="box">
+        <h2>D. safeParseNumber</h2>
+        <label>Input String:</label>
+        <input type="text" id="parseValue">
+
+        <button onclick="runParseNumber()">Parse</button>
+        <div id="resultParse" class="result"></div>
+    </div>
+
+
+    <div class="box">
+        <h2>E. isSafeCounterNo</h2>
+        <label>Number:</label>
+        <input type="text" id="safeValue">
+
+        <button onclick="runSafeCounter()">Check</button>
+        <div id="resultSafe" class="result"></div>
+    </div>
+
+
+    <div class="box">
+        <h2>F. addMoney</h2>
+        <label>A:</label>
+        <input type="text" id="moneyA">
+
+        <label>B:</label>
+        <input type="text" id="moneyB">
+
+        <button onclick="runAddMoney()">Add</button>
+        <div id="resultAdd" class="result"></div>
+    </div>
+
+    <summary>
+        <h2>G. Short Theory Questions</h2>
+    </summary>
+    <div class="theory">
+        <p><b>1. When does toPrecision use scientific notation while toFixed does not?</b><br>
+        <details>
+            <summary></summary>
+            When the number has more digits than the chosen significant digits.
+
+            Example:
+            1234.56.toPrecision(3) → "1.23e+3"
+            1234.56.toFixed(3) → "1234.560"</p>
+        </details>
+
+        <p><b>2. Why is Number.isNaN("NaN") false but isNaN("NaN") true?</b><br>
+        <details>
+            <summary></summary>
+            Because Number.isNaN does not convert types, but isNaN does convert.</p>
+        </details>
+
+        <p><b>3. Why is 0.1 + 0.2 !== 0.3 and how does Number.EPSILON help?</b><br>
+        <details>
+            <summary></summary>
+            Floating-point values are not exact; result becomes 0.30000000000000004.
+            Number.EPSILON lets us compare numbers with a tiny tolerance.</p>
+        </details>
+
+        <p><b>4. Difference between parseInt("08") and Number("08")?</b><br>
+        <details>
+            <summary></summary>
+            Both give 8, but older JS treated parseInt("08") as octal, causing errors.</p>
+        </details>
+
+        <p><b>5. Why are numbers beyond MAX_SAFE_INTEGER unsafe?</b><br>
+        <details>
+            <summary></summary>
+            Because JS can't represent every large integer → values start repeating.
+
+            Example:
+            9007199254740992 === 9007199254740993 → true (incorrect)</p>
+        </details>
+        <p><b>6. Difference between toExponential(0) and toExponential(2)?</b><br>
+        <details>
+            <summary></summary>
+            toExponential(0) → no decimal digits.
+            toExponential(2) → two decimal digits.
+
+            Example:
+            9876.toExponential(0) → "1e+4"
+            9876.toExponential(2) → "9.88e+3"
+
+            </p>
+        </details>
+    </div>
+
+    <script>
+
+        function formatMoney(value, decimals) {
+            if (!Number.isFinite(value)) return "Invalid";
+            return value.toFixed(decimals);
+        }
+
+
+        function formatSignificant(value, sigDigits) {
+            if (!Number.isFinite(value)) return "Invalid";
+            return value.toPrecision(sigDigits);
+        }
+
+
+        function formatScientific(value, fractionDigits) {
+            if (!Number.isFinite(value)) return "Invalid";
+            return value.toExponential(fractionDigits);
+        }
+
+
+        function safeParseNumber(input) {
+            let trimmed = input.trim();
+            let num = Number(trimmed);
+
+
+            if (Number.isNaN(num)) {
+                let parsedInt = Number.parseInt(trimmed);
+                if (!Number.isNaN(parsedInt)) return parsedInt;
+            }
+            return num;
+        }
+
+
+        function isSafeCounterNo(n) {
+            return Number.isSafeInteger(n);
+        }
+
+
+        function addMoney(a, b) {
+            let sum = a + b;
+
+
+            if (Math.abs(sum - Math.round(sum)) < 10 * Number.EPSILON) {
+                return Math.round(sum);
+            }
+
+            if (Math.abs(sum * 100 - Math.round(sum * 100)) < 10 * Number.EPSILON * 100) {
+                return Math.round(sum * 100) / 100;
+            }
+
+            return sum;
+        }
+        function runFormatMoney() {
+            let v = Number(document.getElementById("moneyValue").value);
+            let d = Number(document.getElementById("moneyDecimals").value);
+            document.getElementById("resultMoney").innerText = formatMoney(v, d);
+        }
+
+        function runFormatSig() {
+            let v = Number(document.getElementById("sigValue").value);
+            let d = Number(document.getElementById("sigDigits").value);
+            document.getElementById("resultSig").innerText = formatSignificant(v, d);
+        }
+
+        function runFormatScientific() {
+            let v = Number(document.getElementById("sciValue").value);
+            let d = Number(document.getElementById("sciDigits").value);
+            document.getElementById("resultSci").innerText = formatScientific(v, d);
+        }
+
+        function runParseNumber() {
+            let txt = document.getElementById("parseValue").value;
+            document.getElementById("resultParse").innerText = safeParseNumber(txt);
+        }
+
+        function runSafeCounter() {
+            let v = Number(document.getElementById("safeValue").value);
+            document.getElementById("resultSafe").innerText = isSafeCounterNo(v);
+        }
+
+        function runAddMoney() {
+            let a = Number(document.getElementById("moneyA").value);
+            let b = Number(document.getElementById("moneyB").value);
+            document.getElementById("resultAdd").innerText = addMoney(a, b);
+        }
+
+    </script>
+</body>
+
+</html>
